@@ -103,7 +103,6 @@ class Ticket(models.Model):
         date = self.movie_session.show_time
         return f"{movie} {date} (row: {self.row}, seat: {self.seat})"
 
-
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
