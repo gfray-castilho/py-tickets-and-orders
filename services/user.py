@@ -33,7 +33,6 @@ def get_user(user_id: int) -> User:
     return User.objects.get(id=user_id)
 
 
-from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
