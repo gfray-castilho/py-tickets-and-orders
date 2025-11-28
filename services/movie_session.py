@@ -1,5 +1,5 @@
 from django.db.models import QuerySet
-
+from db.models import Ticket
 from db.models import MovieSession
 
 

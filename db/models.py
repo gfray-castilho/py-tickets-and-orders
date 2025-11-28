@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User, AbstractUser
+from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import UniqueConstraint
@@ -84,7 +84,7 @@ class Ticket(models.Model):
 
     def clean(self) -> None:
         if self.row > self.movie_session.rows:
-            raise ValidationError(f"row number must be in available range: (1, rows): (1, 18)")
+            raise ValidationError("row number must be in available range: (1, rows): (1, 18)")
 
         if self.seat > self.movie_session.seats:
             raise ValidationError(f"seat number must be in available range: (1, seats): (1,18)")
