@@ -70,7 +70,7 @@ class Order(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self) -> str:
-        return f"{str(self.created_at)}"
+            return f"Order #{self.id} - {self.user.username}"
 
 
 class Ticket(models.Model):
@@ -80,14 +80,7 @@ class Ticket(models.Model):
     row = models.IntegerField()
     seat = models.IntegerField()
     def __str__(self) -> str:
-        return f"{self.movie_session.movie.title} {self.movie_session.show_time} (row:{str(self.row)}, seat:{str(self.seat)})"
-
-    def clean(self) -> None:
-        if self.row > self.movie_session.rows:
-            raise ValidationError("row number must be in available range: (1, rows): (1, 18)")
-
-        if self.seat > self.movie_session.seats:
-            raise ValidationError(f"seat number must be in available range: (1, seats): (1,18)")
+        return f"Ticket for {self.movie_session.movie.title} - row {self.row}, seat {self.seat}"
 
     class Meta:
         constraints = [
@@ -95,10 +88,19 @@ class Ticket(models.Model):
                              )
         ]
 
+    def clean(self):
+        hall = self.movie_session.cinema_hall
+
+        if self.row > hall.rows:
+            raise ValidationError("Row exceeds hall limits")
+
+        if self.seat > hall.seats_in_row:
+            raise ValidationError("Seat exceeds hall limits")
+
+
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
-
 
 class User(AbstractUser):
     pass
