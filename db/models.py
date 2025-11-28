@@ -59,10 +59,10 @@ class MovieSession(models.Model):
         on_delete=models.CASCADE,
         related_name="sessions"
     )
-    start = models.DateTimeField()
+    show_time = models.DateTimeField()  # mantém o nome esperado pelos testes
 
     def __str__(self):
-        return f"<MovieSession: {self.movie.title} at {self.start}>"
+        return f"<MovieSession: {self.movie.title} at {self.show_time}>"
 
 
 class Order(models.Model):
@@ -107,14 +107,14 @@ class Ticket(models.Model):
                 "seat": [f"seat number must be in available range: (1, seats_in_row): (1, {hall.seats_in_row})"]
             })
 
-    def __str__(self) -> str:
-        movie = self.movie_session.movie.title
-        date = self.movie_session.show_time
-        return f"{movie} {date} (row: {self.row}, seat: {self.seat})"
+        def __str__(self) -> str:
+            movie = self.movie_session.movie.title
+            date = self.movie_session.show_time
+            return f"{movie} {date} (row: {self.row}, seat: {self.seat})"
 
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)
+        def save(self, *args, **kwargs):
+            self.full_clean()
+            super().save(*args, **kwargs)
 
 class User(AbstractUser):
     pass
