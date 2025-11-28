@@ -1,5 +1,8 @@
+from django.contrib.auth.models import User, AbstractUser
+from django.core.exceptions import ValidationError
 from django.db import models
-
+from django.db.models import UniqueConstraint
+from django.conf import settings
 
 class Genre(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -24,6 +27,11 @@ class Movie(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["title"])
+        ]
 
 
 class CinemaHall(models.Model):
@@ -50,3 +58,47 @@ class MovieSession(models.Model):
 
     def __str__(self) -> str:
         return f"{self.movie.title} {str(self.show_time)}"
+
+
+class Order(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"{str(self.created_at)}"
+
+
+class Ticket(models.Model):
+    movie_session = models.ForeignKey(
+        to=MovieSession, on_delete=models.CASCADE, related_name="tickets")
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    row = models.IntegerField()
+    seat = models.IntegerField()
+    def __str__(self) -> str:
+        return f"{self.movie_session.movie.title} {self.movie_session.show_time} (row:{str(self.row)}, seat:{str(self.seat)})"
+
+    def clean(self) -> None:
+        if self.row > self.movie_session.rows:
+            raise ValidationError(f"row number must be in available range: (1, rows): (1, 18)")
+
+        if self.seat > self.movie_session.seats:
+            raise ValidationError(f"seat number must be in available range: (1, seats): (1,18)")
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=["row", "seat", "movie_session"], name="unique_ticket"
+                             )
+        ]
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+
+class User(AbstractUser):
+    pass
