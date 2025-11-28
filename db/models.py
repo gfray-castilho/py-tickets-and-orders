@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models import UniqueConstraint
 from django.conf import settings
 
+
 class Genre(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
@@ -87,14 +88,19 @@ class Ticket(models.Model):
         ]
 
     def clean(self):
-        hall = self.movie_session.cinema_hall
+        hall = self.movie_session.hall
 
-        if self.row > hall.rows:
-            raise ValidationError("Row exceeds hall limits")
+        # valida row
+        if not (1 <= self.row <= hall.rows):
+            raise ValidationError({
+                "row": [f"row number must be in available range: (1, rows): (1, {hall.rows})"]
+            })
 
-        if self.seat > hall.seats_in_row:
-            raise ValidationError("Seat exceeds hall limits")
-
+        # valida seat
+        if not (1 <= self.seat <= hall.seats_in_row):
+            raise ValidationError({
+                "seat": [f"seat number must be in available range: (1, seats_in_row): (1, {hall.seats_in_row})"]
+            })
 
     def __str__(self) -> str:
         movie = self.movie_session.movie.title
