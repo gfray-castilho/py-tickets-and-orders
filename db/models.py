@@ -70,7 +70,7 @@ class Order(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self) -> str:
-            return f"Order #{self.id} - {self.user.username}"
+        return f"Order #{self.id} - {self.user.username}"
 
 
 class Ticket(models.Model):
