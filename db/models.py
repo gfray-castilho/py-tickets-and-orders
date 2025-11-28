@@ -47,22 +47,15 @@ class CinemaHall(models.Model):
     def __str__(self) -> str:
         return self.name
 
-class Hall(models.Model):
-    title = models.CharField(max_length=255)
-    rows = models.PositiveIntegerField()
-    seats_in_row = models.PositiveIntegerField()
-
-    def __str__(self):
-        return self.title
-
 
 class MovieSession(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
-    hall = models.ForeignKey(Hall, on_delete=models.CASCADE)
-    start = models.DateTimeField()
+    cinema_hall = models.ForeignKey(CinemaHall, on_delete=models.CASCADE)
+    show_time = models.DateTimeField()
 
     def __str__(self):
-        return f"{self.movie.title} {self.start}"
+        return f"{self.movie.title} {self.show_time}"
+
 
 
 
