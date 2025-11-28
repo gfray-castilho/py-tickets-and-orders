@@ -49,41 +49,50 @@ class CinemaHall(models.Model):
 
 
 class MovieSession(models.Model):
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
-    cinema_hall = models.ForeignKey(CinemaHall, on_delete=models.CASCADE)
-    show_time = models.DateTimeField()
+    movie = models.ForeignKey(
+        Movie,
+        on_delete=models.CASCADE,
+        related_name="movie_sessions"
+    )
+    cinema_hall = models.ForeignKey(
+        CinemaHall,
+        on_delete=models.CASCADE,
+        related_name="sessions"
+    )
+    start = models.DateTimeField()
 
     def __str__(self):
-        return f"{self.movie.title} {self.show_time}"
-
-
+        return f"<MovieSession: {self.movie.title} at {self.start}>"
 
 
 class Order(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name="orders"
     )
-    class Meta:
-        ordering = ["-created_at"]
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
-        return str(self.created_at)
+        return f"<Order: {self.created_at}>"
 
 
 class Ticket(models.Model):
     movie_session = models.ForeignKey(
-        to=MovieSession, on_delete=models.CASCADE, related_name="tickets")
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    row = models.IntegerField()
-    seat = models.IntegerField()
+        MovieSession,
+        on_delete=models.CASCADE,
+        related_name="tickets"
+    )
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name="tickets"
+    )
+    seat = models.PositiveIntegerField()
 
-    class Meta:
-        constraints = [
-            UniqueConstraint(fields=["row", "seat", "movie_session"], name="unique_ticket"
-                             )
-        ]
+    def __str__(self):
+        return f"<Ticket {self.id}>"
+
 
     def clean(self):
         hall = self.movie_session.cinema_hall

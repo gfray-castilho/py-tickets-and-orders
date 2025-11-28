@@ -36,28 +36,15 @@ def get_user(user_id: int) -> User:
 
 User = get_user_model()
 
-def update_user(
-    user_id: int,
-    username: str | None = None,
-    password: str | None = None,
-    email: str | None = None,
-    first_name: str | None = None,
-    last_name: str | None = None,
-):
-    user = User.objects.get(id=user_id)
+def update_user(user_id: int, **kwargs) -> User:
+    user = get_user(user_id)
 
-    if username is not None:
-        user.username = username
-    if email is not None:
-        user.email = email
-    if first_name is not None:
-        user.first_name = first_name
-    if last_name is not None:
-        user.last_name = last_name
-    if password is not None:
-        user.set_password(password)
+    for field, value in kwargs.items():
+        if value is not None:
+            setattr(user, field, value)
 
     user.save()
     return user
+
 
 
