@@ -1,32 +1,25 @@
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.contrib.auth import get_user_model
-from db.models import Order, Ticket, MovieSession
+from db.models import Order, Ticket
 
+
+User = get_user_model()
+
+@transaction.atomic
 def create_order(tickets: list[dict], username: str, date=None) -> Order:
-    with transaction.atomic():
-        # 1. pegar o usuário
-        user = User.objects.get(username=username)
+    user = User.objects.get(username=username)
 
-        # 2. criar o order
-        order = Order.objects.create(user=user)
+    order = Order.objects.create(user=user)
 
-        # 3. se veio uma data, aplicar
-        if date is not None:
-            order.created_at = date
-            order.save()
+    if date is not None:
+        order.created_at = date
+        order.save()
 
-        # 4. criar cada ticket
-        for t in tickets:
-            Ticket.objects.create(
-                row=t["row"],
-                seat=t["seat"],
-                movie_session=MovieSession.objects.get(id=t["movie_session"]),
-                order=order,
-            )
+    for ticket_data in tickets:
+        Ticket.objects.create(order=order, **ticket_data)
 
-        return order
-
+    return order
 
 
 def get_orders(username:str | None = None):

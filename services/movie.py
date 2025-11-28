@@ -1,18 +1,14 @@
 from django.db.models import QuerySet
-
-from db.models import Movie
-
 from django.db import transaction
-
 from db.models import Movie
+
 
 def get_movies(
-    title = None,
-    genres_ids: list[int] = None,
-    actors_ids: list[int] = None,
-) -> QuerySet:
+    title: str | None = None,
+    genres_ids: list[int] | None = None,
+    actors_ids: list[int] | None = None,
+) -> QuerySet[Movie]:
     queryset = Movie.objects.all()
-
 
     if title is not None:
         queryset = queryset.filter(title__icontains=title)
@@ -32,5 +28,4 @@ def get_movie_by_id(movie_id: int) -> Movie:
 
 @transaction.atomic
 def create_movie(**kwargs) -> Movie:
-    movie = Movie.objects.create(**kwargs)
-    return movie
+    return Movie.objects.create(**kwargs)

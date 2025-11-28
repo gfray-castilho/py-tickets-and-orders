@@ -70,7 +70,7 @@ class Order(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self) -> str:
-        return f"Order #{self.id} - {self.user.username}"
+        return str(self.created_at)
 
 
 class Ticket(models.Model):
@@ -79,8 +79,6 @@ class Ticket(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     row = models.IntegerField()
     seat = models.IntegerField()
-    def __str__(self) -> str:
-        return f"Ticket for {self.movie_session.movie.title} - row {self.row}, seat {self.seat}"
 
     class Meta:
         constraints = [
@@ -96,6 +94,12 @@ class Ticket(models.Model):
 
         if self.seat > hall.seats_in_row:
             raise ValidationError("Seat exceeds hall limits")
+
+
+    def __str__(self) -> str:
+        movie = self.movie_session.movie.title
+        date = self.movie_session.show_time
+        return f"{movie} {date} (row: {self.row}, seat: {self.seat})"
 
 
     def save(self, *args, **kwargs):
